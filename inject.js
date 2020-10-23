@@ -9,15 +9,22 @@ const completed = {};
 const clickInputs = (collapse) => {
   const elements = document.querySelectorAll(".file-header");
   elements.forEach((parent) => {
-    const fileNameElement = parent.querySelector(".rgh-pr-file-state");
+    const fileNameElement = parent.querySelector(".file-info a");
     const fileName = fileNameElement.text;
 
     if (fileName.includes("translations")) {
-      const checkbox = parent.querySelector(".js-reviewed-toggle input");
-      if (collapse) {
-        if (!checkbox.checked) checkbox.click();
-      } else {
-        if (checkbox.checked) checkbox.click();
+      let toggle = parent.querySelector(".js-reviewed-toggle input");
+      let expanded = toggle && !toggle.checked;
+
+      if (!toggle) {
+        toggle = parent.querySelector(".js-details-target");
+        expanded = toggle.getAttribute("aria-expanded") == "true";
+      }
+
+      if (collapse && expanded) {
+        toggle.click();
+      } else if (!collapse && !expanded) {
+        toggle.click();
       }
     }
   });
