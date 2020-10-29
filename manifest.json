@@ -1,11 +1,11 @@
 {
-  "name": "Translation Collapser",
+  "name": "Github File Collapser",
   "version": "0.0.5",
   "manifest_version": 2,
   "background": {
     "scripts": ["background.js"]
   },
-  "description": "Collapses files that have 'translations' in the title in githubs file viewer for PR's",
+  "description": "Collapses files that have match supplied keywords in githubs file viewer for PR's. Defaults to files that have 'translations' in the title. List of keywords is customizable from the extension options",
   "permissions": ["tabs", "storage"],
   "content_scripts": [
     {
