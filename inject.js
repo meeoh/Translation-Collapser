@@ -1,5 +1,5 @@
-const collapseText = "Collapse All Translations";
-const expandText = "Expand All Translations";
+const collapseText = "Collapse matching files";
+const expandText = "Expand matching files";
 const COLLAPSE_MODE = 0;
 const EXPAND_MODE = 1;
 let currentMode = COLLAPSE_MODE;
