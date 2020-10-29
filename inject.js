@@ -12,27 +12,40 @@ const clickInputs = (collapse) => {
     const fileNameElement = parent.querySelector(".file-info a");
     const fileName = fileNameElement.text;
 
-    if (fileName.includes("translations")) {
-      let toggle = parent.querySelector(".js-reviewed-toggle input");
-      let expanded = toggle && !toggle.checked;
+    chrome.storage.sync.get(
+      {
+        keywords: "translations",
+      },
+      function (items) {
+        const keywords = items.keywords.split(",");
 
-      if (!toggle) {
-        toggle = parent.querySelector(".js-details-target");
-        expanded = toggle.getAttribute("aria-expanded") == "true";
-      }
+        const match = keywords.some((keyword) => {
+          return fileName.includes(keyword);
+        });
 
-      if (collapse && expanded) {
-        toggle.click();
-      } else if (!collapse && !expanded) {
-        toggle.click();
+        if (match) {
+          let toggle = parent.querySelector(".js-reviewed-toggle input");
+          let expanded = toggle && !toggle.checked;
+
+          if (!toggle) {
+            toggle = parent.querySelector(".js-details-target");
+            expanded = toggle.getAttribute("aria-expanded") == "true";
+          }
+
+          if (collapse && expanded) {
+            toggle.click();
+          } else if (!collapse && !expanded) {
+            toggle.click();
+          }
+        }
       }
-    }
+    );
+    const button = document.getElementsByClassName(
+      "translationsCollapseButton"
+    )[0];
+    button.textContent = collapse ? expandText : collapseText;
+    currentMode = collapse ? EXPAND_MODE : COLLAPSE_MODE;
   });
-  const button = document.getElementsByClassName(
-    "translationsCollapseButton"
-  )[0];
-  button.textContent = collapse ? expandText : collapseText;
-  currentMode = collapse ? EXPAND_MODE : COLLAPSE_MODE;
 };
 
 const collapseAllTranslations = () => {

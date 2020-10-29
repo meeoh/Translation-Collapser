@@ -1,16 +1,20 @@
 {
   "name": "Translation Collapser",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "manifest_version": 2,
   "background": {
     "scripts": ["background.js"]
   },
   "description": "Collapses files that have 'translations' in the title in githubs file viewer for PR's",
-  "permissions": ["tabs"],
+  "permissions": ["tabs", "storage"],
   "content_scripts": [
     {
       "matches": ["https://github.com/*"],
       "js": ["inject.js"]
     }
-  ]
+  ],
+  "options_ui": {
+    "page": "options.html",
+    "open_in_tab": false
+  }
 }
