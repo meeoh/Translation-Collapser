@@ -5,7 +5,7 @@
   "background": {
     "scripts": ["background.js"]
   },
-  "description": "Collapses files that have match supplied keywords in githubs file viewer for PR's. Defaults to files that have 'translations' in the title. List of keywords is customizable from the extension options",
+  "description": "Collapses files that match supplied keywords in githubs file viewer for PR's. Customizable in options",
   "permissions": ["tabs", "storage"],
   "content_scripts": [
     {
