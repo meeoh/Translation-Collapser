@@ -6,5 +6,5 @@ Tiny chrome extension to collapse files in githubs file-view while reviewing a P
 
 
 TODO:
-- Add an options page where the user can predefine keywords that should get collapsed on button press
+- [x] Add an options page where the user can predefine keywords that should get collapsed on button press
 
