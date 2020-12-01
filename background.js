@@ -6,7 +6,6 @@ chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
         { action: "addTranslationsButton" },
         function (response) {}
       );
-      completed[tab.url] = true;
     }
   }
 });
