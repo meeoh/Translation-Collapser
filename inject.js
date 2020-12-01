@@ -17,7 +17,9 @@ const clickInputs = (collapse) => {
         keywords: "translations",
       },
       function (items) {
-        const keywords = items.keywords.split(",");
+        const keywords = items.keywords
+          .split(",")
+          .map((keyword) => keyword.trim());
 
         const match = keywords.some((keyword) => {
           return fileName.includes(keyword);
