@@ -1,5 +1,5 @@
-const collapseText = "Collapse matching files";
-const expandText = "Expand matching files";
+const collapseText = "Collapse All Translations";
+const expandText = "Expand All Translations";
 const COLLAPSE_MODE = 0;
 const EXPAND_MODE = 1;
 let currentMode = COLLAPSE_MODE;
@@ -7,25 +7,31 @@ let currentMode = COLLAPSE_MODE;
 const completed = {};
 
 const clickInputs = (collapse) => {
-  const elements = document.querySelectorAll(".file-header");
-  elements.forEach((parent) => {
+  const files = document.querySelectorAll(".file");
+  files.forEach((parent) => {
     const fileNameElement = parent.querySelector(".file-info a");
     const fileName = fileNameElement.text;
 
     chrome.storage.sync.get(
       {
         keywords: "translations",
+        deletedFiles: false,
+        emptyFiles: false,
       },
-      function (items) {
-        const keywords = items.keywords
+      function ({ keywords: savedKeywords, deletedFiles, emptyFiles }) {
+        const keywords = savedKeywords
           .split(",")
           .map((keyword) => keyword.trim());
 
-        const match = keywords.some((keyword) => {
+        const filenameMatch = keywords.some((keyword) => {
           return fileName.includes(keyword);
         });
 
-        if (match) {
+        const emptyFile = emptyFiles && parent.querySelector(".empty");
+        const deletedFile =
+          deletedFiles && parent.querySelector(".hidden-diff-reason");
+
+        if (filenameMatch || emptyFile || deletedFile) {
           let toggle = parent.querySelector(".js-reviewed-toggle input");
           let expanded = toggle && !toggle.checked;
 
@@ -42,12 +48,12 @@ const clickInputs = (collapse) => {
         }
       }
     );
-    const button = document.getElementsByClassName(
-      "translationsCollapseButton"
-    )[0];
-    button.textContent = collapse ? expandText : collapseText;
-    currentMode = collapse ? EXPAND_MODE : COLLAPSE_MODE;
   });
+  const button = document.getElementsByClassName(
+    "translationsCollapseButton"
+  )[0];
+  button.textContent = collapse ? expandText : collapseText;
+  currentMode = collapse ? EXPAND_MODE : COLLAPSE_MODE;
 };
 
 const collapseAllTranslations = () => {

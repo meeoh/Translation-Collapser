@@ -1,10 +1,14 @@
 // Saves options to chrome.storage
 function save_options() {
   var keywords = document.getElementById("keywords").value;
+  const deletedFiles = document.getElementById("deletedFiles").checked;
+  const emptyFiles = document.getElementById("emptyFiles").checked;
 
   chrome.storage.sync.set(
     {
       keywords,
+      deletedFiles,
+      emptyFiles,
     },
     function () {
       // Update status to let user know options were saved.
@@ -21,13 +25,16 @@ function save_options() {
 // stored in chrome.storage.
 function restore_options() {
   // Use default value color = 'red' and likesColor = true.
-  console.log("restore");
   chrome.storage.sync.get(
     {
       keywords: "translations",
+      emptyFiles: false,
+      deletedFiles: false,
     },
-    function (items) {
-      document.getElementById("keywords").value = items.keywords;
+    function ({ keywords, emptyFiles, deletedFiles }) {
+      document.getElementById("keywords").value = keywords;
+      document.getElementById("deletedFiles").checked = deletedFiles;
+      document.getElementById("emptyFiles").checked = emptyFiles;
     }
   );
 }

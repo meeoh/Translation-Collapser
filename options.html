@@ -2,10 +2,28 @@
 <html>
   <head>
     <title>Translation Collapser Options</title>
+
+    <style>
+      .checkboxGroup {
+        display: flex;
+        align-items: center;
+      }
+      .checkboxGroup input {
+        margin-left: 0;
+      }
+    </style>
   </head>
   <body>
     Keywords to collapse (comma separated):
     <input id="keywords" />
+    <div class="checkboxGroup">
+      <input type="checkbox" id="deletedFiles" />
+      <span>Collapse deleted files</span>
+    </div>
+    <div class="checkboxGroup">
+      <input type="checkbox" id="emptyFiles" />
+      <span>Collapse empty files</span>
+    </div>
 
     <div id="status"></div>
     <button id="save">Save</button>
