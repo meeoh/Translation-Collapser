@@ -28,7 +28,6 @@ const clickInputs = (collapse) => {
         });
 
         const emptyFile = emptyFiles && parent.querySelector(".empty");
-        console.log(parent.querySelectorAll(".data.highlight.empty"));
 
         const deletedFile =
           deletedFiles && parent.querySelector(".hidden-diff-reason");
