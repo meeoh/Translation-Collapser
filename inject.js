@@ -10,6 +10,7 @@ const clickInputs = (collapse) => {
   const files = document.querySelectorAll(".file");
   files.forEach((parent) => {
     const fileNameElement = parent.querySelector(".file-info a");
+    if (!fileNameElement) return;
     const fileName = fileNameElement.text;
 
     chrome.storage.sync.get(
@@ -27,7 +28,8 @@ const clickInputs = (collapse) => {
           return fileName.includes(keyword);
         });
 
-        const emptyFile = emptyFiles && parent.querySelector(".empty");
+        const emptyFile =
+          emptyFiles && parent.querySelector(".data.highlight.empty");
 
         const deletedFile =
           deletedFiles && parent.querySelector(".hidden-diff-reason");
