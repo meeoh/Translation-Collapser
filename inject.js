@@ -32,7 +32,7 @@ const clickInputs = (collapse) => {
           emptyFiles && parent.querySelector(".data.highlight.empty");
 
         const deletedFile =
-          deletedFiles && parent.querySelector(".hidden-diff-reason");
+          deletedFiles && parent.querySelector("[id^='hidden-diff-reason']");
 
         if (filenameMatch || emptyFile || deletedFile) {
           let toggle = parent.querySelector(".js-reviewed-toggle input");
@@ -74,11 +74,13 @@ const toggleTranslations = () => {
 
 const addButton = () => {
   var div = document.createElement("div");
-  div.className = "diffbar-item";
+  div.className = "diffbar-item mr-3";
+
   const button = document.createElement("button");
   button.className = "btn translationsCollapseButton";
   button.textContent = collapseText;
   button.onclick = toggleTranslations;
+
   div.append(button);
 
   const prReviewTools = document.querySelector(".pr-review-tools");
@@ -88,7 +90,7 @@ const addButton = () => {
   }
 };
 
-chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
+chrome.runtime.onMessage.addListener(function (msg) {
   if (
     msg.action == "addTranslationsButton" &&
     document.location.href.match(

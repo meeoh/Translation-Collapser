@@ -1,9 +1,9 @@
 {
   "name": "Github File Collapser",
-  "version": "0.1.0",
-  "manifest_version": 2,
+  "version": "0.1.1",
+  "manifest_version": 3,
   "background": {
-    "scripts": ["background.js"]
+    "service_worker": "background.js"
   },
   "description": "Collapses files that match supplied keywords in githubs file viewer for PR's. Customizable in options",
   "permissions": ["tabs", "storage"],
