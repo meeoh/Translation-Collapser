@@ -1,9 +1,10 @@
 "use strict";
 
 const DEFAULT_SETTINGS = {
-  keywords: "translations",
+  keywords: "",
   deletedFiles: false,
   emptyFiles: false,
+  markAsViewed: false,
 };
 
 const STATUS_DISPLAY_MS = 1500;
@@ -27,9 +28,10 @@ async function saveOptions() {
   const keywords = getElement("keywords").value.trim();
   const deletedFiles = getElement("deletedFiles").checked;
   const emptyFiles = getElement("emptyFiles").checked;
+  const markAsViewed = getElement("markAsViewed").checked;
 
-  if (!keywords) {
-    showStatus("Please enter at least one keyword.", true);
+  if (!keywords && !deletedFiles && !emptyFiles) {
+    showStatus("Please enter a keyword or enable a file type option.", true);
     return;
   }
 
@@ -38,6 +40,7 @@ async function saveOptions() {
       keywords,
       deletedFiles,
       emptyFiles,
+      markAsViewed,
     });
     showStatus("Options saved successfully!");
   } catch (error) {
@@ -51,6 +54,7 @@ async function restoreOptions() {
     getElement("keywords").value = settings.keywords;
     getElement("deletedFiles").checked = settings.deletedFiles;
     getElement("emptyFiles").checked = settings.emptyFiles;
+    getElement("markAsViewed").checked = settings.markAsViewed;
   } catch (error) {
     showStatus("Error loading options.", true);
   }
@@ -60,7 +64,7 @@ document.addEventListener("DOMContentLoaded", restoreOptions);
 getElement("save").addEventListener("click", saveOptions);
 
 getElement("keywords").addEventListener("keydown", (event) => {
-  if (event.key === "Enter") {
+  if (event.key === "Enter" && (event.ctrlKey || event.metaKey)) {
     event.preventDefault();
     saveOptions();
   }

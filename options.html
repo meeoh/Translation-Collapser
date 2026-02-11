@@ -37,16 +37,19 @@
         margin-bottom: 4px;
       }
 
-      input[type="text"] {
+      textarea {
         width: 100%;
         padding: 8px 12px;
         font-size: 14px;
+        font-family: SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace;
         border: 1px solid #d0d7de;
         border-radius: 6px;
         background-color: #f6f8fa;
+        resize: vertical;
+        min-height: 60px;
       }
 
-      input[type="text"]:focus {
+      textarea:focus {
         outline: none;
         border-color: #0969da;
         box-shadow: 0 0 0 3px rgba(9, 105, 218, 0.3);
@@ -130,9 +133,9 @@
     <h1>GitHub File Collapser Options</h1>
 
     <div class="form-group">
-      <label for="keywords">Keywords to collapse</label>
-      <input type="text" id="keywords" placeholder="translations, locale, i18n">
-      <p class="hint">Comma-separated list of keywords. Files containing these words will be collapsed.</p>
+      <label for="keywords">Patterns to collapse (one per line)</label>
+      <textarea id="keywords" rows="3" placeholder="translations&#10;\.i18n\.&#10;locale/.*\.json$"></textarea>
+      <p class="hint">One regex pattern per line. E.g. <code>translations</code> or <code>\.i18n\.</code></p>
     </div>
 
     <div class="form-group">
@@ -144,6 +147,11 @@
       <div class="checkbox-group">
         <input type="checkbox" id="emptyFiles">
         <label for="emptyFiles">Collapse empty files</label>
+      </div>
+
+      <div class="checkbox-group">
+        <input type="checkbox" id="markAsViewed">
+        <label for="markAsViewed">Mark collapsed files as viewed</label>
       </div>
     </div>
 
