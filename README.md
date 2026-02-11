@@ -2,7 +2,7 @@
 
 A lightweight Chrome extension that simplifies GitHub PR reviews by auto-collapsing files matching user-defined keywords.
 
-![Demo](demo.gif)
+![Demo](collapser.gif)
 
 ## Features
 
@@ -38,13 +38,17 @@ Right-click the extension icon → **Options** (or click the extension and selec
 
 | Setting | Description | Default |
 |---------|-------------|---------|
-| Keywords | Comma-separated list of keywords to match | `translations` |
+| Patterns | Regex patterns to match filenames (one per line) | *(empty)* |
 | Collapse deleted files | Auto-collapse files marked as deleted | Off |
 | Collapse empty files | Auto-collapse files with no changes | Off |
+| Mark collapsed files as viewed | Mark matched files as "Viewed" when collapsing | Off |
 
-### Example Keywords
+### Example Patterns
 ```
-translations, locale, i18n, .lock, package-lock, yarn.lock
+translations
+\.i18n\.
+locale/.*\.json$
+\.lock$
 ```
 
 ## Development
