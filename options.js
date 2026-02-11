@@ -1,42 +1,67 @@
-// Saves options to chrome.storage
-function save_options() {
-  var keywords = document.getElementById("keywords").value;
-  const deletedFiles = document.getElementById("deletedFiles").checked;
-  const emptyFiles = document.getElementById("emptyFiles").checked;
+"use strict";
 
-  chrome.storage.sync.set(
-    {
+const DEFAULT_SETTINGS = {
+  keywords: "translations",
+  deletedFiles: false,
+  emptyFiles: false,
+};
+
+const STATUS_DISPLAY_MS = 1500;
+
+function getElement(id) {
+  return document.getElementById(id);
+}
+
+function showStatus(message, isError = false) {
+  const status = getElement("status");
+  status.textContent = message;
+  status.className = isError ? "status-error" : "status-success";
+
+  setTimeout(() => {
+    status.textContent = "";
+    status.className = "";
+  }, STATUS_DISPLAY_MS);
+}
+
+async function saveOptions() {
+  const keywords = getElement("keywords").value.trim();
+  const deletedFiles = getElement("deletedFiles").checked;
+  const emptyFiles = getElement("emptyFiles").checked;
+
+  if (!keywords) {
+    showStatus("Please enter at least one keyword.", true);
+    return;
+  }
+
+  try {
+    await chrome.storage.sync.set({
       keywords,
       deletedFiles,
       emptyFiles,
-    },
-    function () {
-      // Update status to let user know options were saved.
-      var status = document.getElementById("status");
-      status.textContent = "Options saved.";
-      setTimeout(function () {
-        status.textContent = "";
-      }, 750);
-    }
-  );
+    });
+    showStatus("Options saved successfully!");
+  } catch (error) {
+    showStatus("Error saving options. Please try again.", true);
+  }
 }
 
-// Restores select box and checkbox state using the preferences
-// stored in chrome.storage.
-function restore_options() {
-  // Use default value color = 'red' and likesColor = true.
-  chrome.storage.sync.get(
-    {
-      keywords: "translations",
-      emptyFiles: false,
-      deletedFiles: false,
-    },
-    function ({ keywords, emptyFiles, deletedFiles }) {
-      document.getElementById("keywords").value = keywords;
-      document.getElementById("deletedFiles").checked = deletedFiles;
-      document.getElementById("emptyFiles").checked = emptyFiles;
-    }
-  );
+async function restoreOptions() {
+  try {
+    const settings = await chrome.storage.sync.get(DEFAULT_SETTINGS);
+    getElement("keywords").value = settings.keywords;
+    getElement("deletedFiles").checked = settings.deletedFiles;
+    getElement("emptyFiles").checked = settings.emptyFiles;
+  } catch (error) {
+    showStatus("Error loading options.", true);
+  }
 }
-document.addEventListener("DOMContentLoaded", restore_options);
-document.getElementById("save").addEventListener("click", save_options);
+
+document.addEventListener("DOMContentLoaded", restoreOptions);
+getElement("save").addEventListener("click", saveOptions);
+
+getElement("keywords").addEventListener("keydown", (event) => {
+  if (event.key === "Enter") {
+    event.preventDefault();
+    saveOptions();
+  }
+});

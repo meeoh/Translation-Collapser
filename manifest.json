@@ -1,12 +1,21 @@
 {
-  "name": "Github File Collapser",
-  "version": "0.1.1",
+  "name": "GitHub File Collapser",
+  "version": "1.0.0",
   "manifest_version": 3,
+  "description": "Automatically collapse files matching keywords in GitHub PR reviews. Supports collapsing translation files, deleted files, and empty files.",
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "action": {
+    "default_title": "GitHub File Collapser"
+  },
   "background": {
     "service_worker": "background.js"
   },
-  "description": "Collapses files that match supplied keywords in githubs file viewer for PR's. Customizable in options",
-  "permissions": ["tabs", "storage"],
+  "permissions": ["storage"],
+  "host_permissions": ["https://github.com/*"],
   "content_scripts": [
     {
       "matches": ["https://github.com/*"],

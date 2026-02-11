@@ -1,103 +1,157 @@
-const collapseText = "Collapse Files";
-const expandText = "Expand Files";
-const COLLAPSE_MODE = 0;
-const EXPAND_MODE = 1;
-let currentMode = COLLAPSE_MODE;
+"use strict";
 
-const completed = {};
+const COLLAPSE_TEXT = "Collapse Files";
+const EXPAND_TEXT = "Expand Files";
+const BUTTON_CLASS = "github-file-collapser-btn";
+const PR_FILES_PATTERN = /https:\/\/github\.com\/.+\/.+\/pull\/.+\/files/;
 
-const clickInputs = (collapse) => {
+const DEFAULT_SETTINGS = {
+  keywords: "translations",
+  deletedFiles: false,
+  emptyFiles: false,
+};
+
+let isCollapsed = false;
+const processedPages = new Set();
+
+async function getSettings() {
+  return chrome.storage.sync.get(DEFAULT_SETTINGS);
+}
+
+function parseKeywords(keywordString) {
+  return keywordString
+    .split(",")
+    .map((keyword) => keyword.trim())
+    .filter((keyword) => keyword.length > 0);
+}
+
+function shouldCollapseFile(fileElement, fileName, settings) {
+  const keywords = parseKeywords(settings.keywords);
+
+  const matchesKeyword = keywords.some((keyword) =>
+    fileName.toLowerCase().includes(keyword.toLowerCase())
+  );
+
+  const isEmptyFile = settings.emptyFiles &&
+    fileElement.querySelector(".data.highlight.empty") !== null;
+
+  const isDeletedFile = settings.deletedFiles &&
+    fileElement.querySelector("[id^='hidden-diff-reason']") !== null;
+
+  return matchesKeyword || isEmptyFile || isDeletedFile;
+}
+
+function getFileToggle(fileElement) {
+  const reviewedToggle = fileElement.querySelector(".js-reviewed-toggle input");
+  if (reviewedToggle) {
+    return {
+      element: reviewedToggle,
+      isExpanded: !reviewedToggle.checked,
+    };
+  }
+
+  const detailsTarget = fileElement.querySelector(".js-details-target");
+  if (detailsTarget) {
+    return {
+      element: detailsTarget,
+      isExpanded: detailsTarget.getAttribute("aria-expanded") === "true",
+    };
+  }
+
+  return null;
+}
+
+async function toggleFiles(shouldCollapse) {
+  const settings = await getSettings();
   const files = document.querySelectorAll(".file");
-  files.forEach((parent) => {
-    const fileNameElement = parent.querySelector(".file-info a");
+
+  files.forEach((fileElement) => {
+    const fileNameElement = fileElement.querySelector(".file-info a");
     if (!fileNameElement) return;
-    const fileName = fileNameElement.text;
 
-    chrome.storage.sync.get(
-      {
-        keywords: "translations",
-        deletedFiles: false,
-        emptyFiles: false,
-      },
-      function ({ keywords: savedKeywords, deletedFiles, emptyFiles }) {
-        const keywords = savedKeywords
-          .split(",")
-          .map((keyword) => keyword.trim());
+    const fileName = fileNameElement.textContent || fileNameElement.innerText || "";
 
-        const filenameMatch = keywords.some((keyword) => {
-          return fileName.includes(keyword);
-        });
+    if (!shouldCollapseFile(fileElement, fileName, settings)) {
+      return;
+    }
 
-        const emptyFile =
-          emptyFiles && parent.querySelector(".data.highlight.empty");
+    const toggle = getFileToggle(fileElement);
+    if (!toggle) return;
 
-        const deletedFile =
-          deletedFiles && parent.querySelector("[id^='hidden-diff-reason']");
-
-        if (filenameMatch || emptyFile || deletedFile) {
-          let toggle = parent.querySelector(".js-reviewed-toggle input");
-          let expanded = toggle && !toggle.checked;
-
-          if (!toggle) {
-            toggle = parent.querySelector(".js-details-target");
-            expanded = toggle.getAttribute("aria-expanded") == "true";
-          }
-
-          if (collapse && expanded) {
-            toggle.click();
-          } else if (!collapse && !expanded) {
-            toggle.click();
-          }
-        }
-      }
-    );
+    const shouldClick = shouldCollapse ? toggle.isExpanded : !toggle.isExpanded;
+    if (shouldClick) {
+      toggle.element.click();
+    }
   });
-  const button = document.getElementsByClassName(
-    "translationsCollapseButton"
-  )[0];
-  button.textContent = collapse ? expandText : collapseText;
-  currentMode = collapse ? EXPAND_MODE : COLLAPSE_MODE;
-};
 
-const collapseAllTranslations = () => {
-  clickInputs(true);
-};
+  updateButtonState(shouldCollapse);
+}
 
-const expandAllTranslations = () => {
-  clickInputs(false);
-};
+function updateButtonState(collapsed) {
+  isCollapsed = collapsed;
+  const button = document.querySelector(`.${BUTTON_CLASS}`);
+  if (button) {
+    button.textContent = collapsed ? EXPAND_TEXT : COLLAPSE_TEXT;
+  }
+}
 
-const toggleTranslations = () => {
-  if (currentMode === COLLAPSE_MODE) collapseAllTranslations();
-  else if (currentMode === EXPAND_MODE) expandAllTranslations();
-};
+function handleButtonClick() {
+  toggleFiles(!isCollapsed);
+}
 
-const addButton = () => {
-  var div = document.createElement("div");
-  div.className = "diffbar-item mr-3";
+function createCollapseButton() {
+  const container = document.createElement("div");
+  container.className = "diffbar-item mr-3";
 
   const button = document.createElement("button");
-  button.className = "btn translationsCollapseButton";
-  button.textContent = collapseText;
-  button.onclick = toggleTranslations;
+  button.className = `btn ${BUTTON_CLASS}`;
+  button.textContent = COLLAPSE_TEXT;
+  button.type = "button";
+  button.addEventListener("click", handleButtonClick);
 
-  div.append(button);
+  container.appendChild(button);
+  return container;
+}
+
+function addButton() {
+  const currentPath = document.location.pathname;
+
+  if (processedPages.has(currentPath)) {
+    return;
+  }
+
+  if (document.querySelector(`.${BUTTON_CLASS}`)) {
+    return;
+  }
 
   const prReviewTools = document.querySelector(".pr-review-tools");
-  if (prReviewTools) {
-    prReviewTools.insertBefore(div, prReviewTools.firstChild);
-    completed[document.location.pathname] = true;
+  if (!prReviewTools) {
+    return;
   }
-};
 
-chrome.runtime.onMessage.addListener(function (msg) {
-  if (
-    msg.action == "addTranslationsButton" &&
-    document.location.href.match(
-      /https:\/\/github\.com\/.+\/.+\/pull\/.+\/files/
-    ) &&
-    !completed[document.location.pathname]
-  ) {
+  const buttonContainer = createCollapseButton();
+  prReviewTools.insertBefore(buttonContainer, prReviewTools.firstChild);
+  processedPages.add(currentPath);
+  isCollapsed = false;
+}
+
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.action !== "addCollapseButton") {
+    return;
+  }
+
+  if (!PR_FILES_PATTERN.test(document.location.href)) {
+    return;
+  }
+
+  addButton();
+  sendResponse({ success: true });
+});
+
+if (PR_FILES_PATTERN.test(document.location.href)) {
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", addButton);
+  } else {
     addButton();
   }
-});
+}
