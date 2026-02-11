@@ -2,7 +2,7 @@
   "name": "GitHub File Collapser",
   "version": "1.0.0",
   "manifest_version": 3,
-  "description": "Automatically collapse files matching keywords in GitHub PR reviews. Supports collapsing translation files, deleted files, and empty files.",
+  "description": "Collapse files matching regex patterns in GitHub PR reviews. Supports translation files, deleted files, and empty files.",
   "icons": {
     "16": "icons/icon16.png",
     "48": "icons/icon48.png",
